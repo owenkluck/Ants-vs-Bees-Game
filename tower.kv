@@ -1,0 +1,378 @@
+#:import ants_vs_some_bees ants_vs_some_bees
+
+#:set SPRITE_WIDTH 93
+#:set SPRITE_HEIGHT 98
+#:set UNIT_NAMES {'HARVESTER': 'Harvester Ant', 'SHORT_THROWER': 'Short-Range Leaf Thrower', 'THROWER': 'All-Range Leaf Thrower', 'LONG_THROWER': 'Long-Range Leaf Thrower', 'WALL': 'Wall Ant'}
+
+
+ScreenManager:
+    Screen:
+        name: 'ready'
+        canvas.before:
+            Color:
+                rgba: (1, 1, 1, 1)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        BoxLayout
+            orientation: 'vertical'
+            Widget:
+            BoxLayout:
+                orientation: 'horizontal'
+                Widget:
+                Image:
+                    source: 'assets/ant_queen.gif'
+                Label:
+                    text: 'vs.'
+                    font_size: sp(24)
+                    color: (0, 0, 0, 1)
+                Image:
+                    source: 'assets/bee.gif'
+                Widget:
+            Widget:
+            Label:
+                text: 'Ants vs. Some Bees'
+                font_size: sp(48)
+                color: (0, 0, 0, 1)
+                size_hint: (1, None)
+                size: self.texture_size
+            Label:
+                text: 'A Tower-Defense Game'
+                font_size: sp(24)
+                color: (0, 0, 0, 1)
+                size_hint: (1, None)
+                size: self.texture_size
+            Widget:
+            BoxLayout:
+                orientation: 'horizontal'
+                Button:
+                    text: 'Instructions'
+                    font_size: sp(36)
+                    on_press:
+                        root.transition.direction = 'up'
+                        root.current = 'instructions'
+                Button:
+                    text: 'Play'
+                    font_size: sp(36)
+                    on_press: app.begin_game()
+    Screen:
+        name: 'instructions'
+        canvas.before:
+            Color:
+                rgba: (1, 1, 1, 1)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        ScrollView:
+            id: instructions_scroll
+            do_scroll_x: False
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint: (1, None)
+                height: instructions.height
+                Widget:
+                    size_hint: (None, 1)
+                    width: sp(24)
+                BoxLayout:
+                    id: instructions
+                    orientation: 'vertical'
+                    height: max(sum(child.height for child in self.children), instructions_scroll.height) + 0 * first_paragraph.height # bind to at least one paragraph's height so that the initial layout is correct
+                    Label:
+                        text: 'Instructions'
+                        font_size: sp(36)
+                        size_hint: (1, None)
+                        height: self.texture_size[1] + 24
+                        color: (0, 0, 0, 1)
+                    Label:
+                        id: first_paragraph
+                        text: 'In "Ants vs. Some Bees" you deploy different kinds of ants to defend a queen ant from waves of attacking bees.'
+                        text_size: (self.width, None)
+                        halign: 'justify'
+                        valign: 'middle'
+                        size_hint: (1, None)
+                        height: self.texture_size[1] + 24
+                        color: (0, 0, 0, 1)
+                    Label:
+                        text: 'A game consists of a series of turns.  In each turn the ants act first, producing resources for the colony or attacking incoming bees by throwing leaves at them.  Then the bees act, either advancing on the queen or stinging ants in their way.  The game ends either when a bee reaches the ant queen (you lose), or the entire bee flotilla has been vanquished (you win).'
+                        text_size: (self.width, None)
+                        halign: 'justify'
+                        valign: 'middle'
+                        size_hint: (1, None)
+                        height: self.texture_size[1] + 24
+                        color: (0, 0, 0, 1)
+                    Label:
+                        text: 'The interface is divided into three parts.  The queen ant, colony, and attacking bees appear in the battlefield view at the bottom of the screen; if the battlefield is bigger than your screen, you can drag the view around.  Above the battlefield is a status bar that shows the tool you currently have selected, the number of turns elapsed since the start of the game, and the amount of food your colony has to spend on new ants.  At the very top is a toolbar where you can select different kinds of ants to place or else the tool to sacrifice ants.  The toolbar will also scroll if it does not fit on your screen.'
+                        text_size: (self.width, None)
+                        halign: 'justify'
+                        valign: 'middle'
+                        size_hint: (1, None)
+                        height: self.texture_size[1] + 24
+                        color: (0, 0, 0, 1)
+                    Label:
+                        text: 'To deploy an ant, select the type you want in the toolbar and tap on the place in a tunnel where you want it.  The only restrictions on ant placement are: 1) you cannot deploy an ant to a space that another insect is occupying or entering and 2) you cannot deploy an ant if you do not have enough food to pay for it; the status bar will show how much an ant type costs when you have it selected.'
+                        text_size: (self.width, None)
+                        halign: 'justify'
+                        valign: 'middle'
+                        size_hint: (1, None)
+                        height: self.texture_size[1] + 24
+                        color: (0, 0, 0, 1)
+                    Label:
+                        text: 'The following ant types are available:'
+                        text_size: (self.width, None)
+                        halign: 'justify'
+                        valign: 'middle'
+                        size_hint: (1, None)
+                        height: self.texture_size[1] + 24
+                        color: (0, 0, 0, 1)
+                    BoxLayout:
+                        orientation: 'horizontal'
+                        size_hint: (1, None)
+                        height: harvester_image.height
+                        Image:
+                            id: harvester_image
+                            source: 'assets/ant_harvester.gif'
+                            size_hint: (None, 1)
+                            size: (SPRITE_WIDTH, SPRITE_HEIGHT)
+                        Label:
+                            text: 'A harvester ant costs 3 food units to deploy, but produces 2 food unitsper turn.'
+                            text_size: (self.width, None)
+                            halign: 'justify'
+                            valign: 'middle'
+                            size_hint: (1, None)
+                            height: harvester_image.height
+                            color: (0, 0, 0, 1)
+                    BoxLayout:
+                        orientation: 'horizontal'
+                        size_hint: (1, None)
+                        height: short_thrower_image.height
+                        Image:
+                            id: short_thrower_image
+                            source: 'assets/ant_short_thrower.gif'
+                            size_hint: (None, 1)
+                            size: (SPRITE_WIDTH, SPRITE_HEIGHT)
+                        Label:
+                            text: 'A short-range leaf thrower costs 3 food units to deploy and can throw leaves at bees it sees up to two spaces away.'
+                            text_size: (self.width, None)
+                            halign: 'justify'
+                            valign: 'middle'
+                            size_hint: (1, None)
+                            height: short_thrower_image.height
+                            color: (0, 0, 0, 1)
+                    BoxLayout:
+                        orientation: 'horizontal'
+                        size_hint: (1, None)
+                        height: thrower_image.height
+                        Image:
+                            id: thrower_image
+                            source: 'assets/ant_thrower.gif'
+                            size_hint: (None, 1)
+                            size: (SPRITE_WIDTH, SPRITE_HEIGHT)
+                        Label:
+                            text: 'An all-range thrower costs 7 food unitsto deploy and can throw leaves at any range.'
+                            text_size: (self.width, None)
+                            halign: 'justify'
+                            valign: 'middle'
+                            size_hint: (1, None)
+                            height: thrower_image.height
+                            color: (0, 0, 0, 1)
+                    BoxLayout:
+                        orientation: 'horizontal'
+                        size_hint: (1, None)
+                        height: long_thrower_image.height
+                        Image:
+                            id: long_thrower_image
+                            source: 'assets/ant_long_thrower.gif'
+                            size_hint: (None, 1)
+                            size: (SPRITE_WIDTH, SPRITE_HEIGHT)
+                        Label:
+                            text: 'A long-range thrower costs 3 food units to deploy and can throw leaves at bees it sees from at least four spaces away.'
+                            text_size: (self.width, None)
+                            halign: 'justify'
+                            valign: 'middle'
+                            size_hint: (1, None)
+                            height: long_thrower_image.height
+                            color: (0, 0, 0, 1)
+                    BoxLayout:
+                        orientation: 'horizontal'
+                        size_hint: (1, None)
+                        height: wall_image.height
+                        Image:
+                            id: wall_image
+                            source: 'assets/ant_wall.gif'
+                            size_hint: (None, 1)
+                            size: (SPRITE_WIDTH, SPRITE_HEIGHT)
+                        Label:
+                            text: 'A wall ant costs 4 food units to deploy and has no attack, but it can withstand 4 stings before dying.'
+                            text_size: (self.width, None)
+                            halign: 'justify'
+                            valign: 'middle'
+                            size_hint: (1, None)
+                            height: wall_image.height
+                            color: (0, 0, 0, 1)
+                    Label:
+                        text: 'To sacrifice an ant, which can be useful if you need space for new deployments, select the sacrifice tool and tap on the ant you want to sacrifice.'
+                        text_size: (self.width, None)
+                        halign: 'justify'
+                        valign: 'middle'
+                        size_hint: (1, None)
+                        height: self.texture_size[1] + 24
+                        color: (0, 0, 0, 1)
+                    Label:
+                        text: 'Bees, unlike ants, come in only one form:'
+                        text_size: (self.width, None)
+                        halign: 'justify'
+                        valign: 'middle'
+                        size_hint: (1, None)
+                        height: self.texture_size[1] + 24
+                        color: (0, 0, 0, 1)
+                    BoxLayout:
+                        orientation: 'horizontal'
+                        size_hint: (1, None)
+                        height: wall_image.height
+                        Image:
+                            id: wall_image
+                            source: 'assets/bee.gif'
+                            size_hint: (None, 1)
+                            size: (SPRITE_WIDTH, SPRITE_HEIGHT)
+                        Label:
+                            text: 'A bee can either fly forward or sting each turn.  It normally takes 4 leaves to kill a bee.'
+                            text_size: (self.width, None)
+                            halign: 'justify'
+                            valign: 'middle'
+                            size_hint: (1, None)
+                            height: wall_image.height
+                            color: (0, 0, 0, 1)
+                    Label:
+                        text: 'However, bees get certain advantages from the terrain:'
+                        text_size: (self.width, None)
+                        halign: 'justify'
+                        valign: 'middle'
+                        size_hint: (1, None)
+                        height: self.texture_size[1] + 24
+                        color: (0, 0, 0, 1)
+                    BoxLayout:
+                        orientation: 'horizontal'
+                        size_hint: (1, None)
+                        height: wall_image.height
+                        Image:
+                            id: wall_image
+                            canvas.before:
+                                Color:
+                                    rgba: (1, 0.5, 0.5, 1)
+                                Rectangle:
+                                    pos: self.pos
+                                    size: self.size
+                            source: 'assets/tunnel.gif'
+                            size_hint: (None, 1)
+                            size: (SPRITE_WIDTH, SPRITE_HEIGHT)
+                        Label:
+                            text: 'Every time a bee reaches a red-shaded space in the tunnel, its health increases by one point.'
+                            text_size: (self.width, None)
+                            halign: 'justify'
+                            valign: 'middle'
+                            size_hint: (1, None)
+                            height: wall_image.height
+                            color: (0, 0, 0, 1)
+                    Button:
+                        text: 'Back'
+                        font_size: sp(36)
+                        size_hint: (1, None)
+                        height: sp(72)
+                        on_press:
+                            root.transition.direction = 'down'
+                            root.current = 'ready'
+                Widget:
+                    size_hint: (None, 1)
+                    width: sp(24)
+    Screen:
+        name: 'go'
+        id: go
+
+
+<Game>:
+    orientation: 'vertical'
+    ScrollView:
+        id: ant_menu_scroll
+        do_scroll_y: False
+        size_hint: (1, None)
+        height: ant_menu.height
+        AnchorLayout:
+            size_hint: (None, None)
+            size: (max(ant_menu_scroll.width, ant_menu.width), max(ant_menu_scroll.height, ant_menu.height))
+            canvas.before:
+                Color:
+                    rgba: (1, 1, 1, 1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            BoxLayout:
+                id: ant_menu
+                orientation: 'horizontal'
+                anchor_x: 'center'
+                anchor_y: 'center'
+                size_hint: (None, None)
+                size: (sum(child.width for child in self.children), max(child.height for child in self.children) if len(self.children) > 0 else 0)
+    BoxLayout:
+        orientation: 'horizontal'
+        size_hint: (1, None)
+        height: 24
+        Label:
+            id: selection
+            text: '{unit} ({food_cost} food)'.format(unit=UNIT_NAMES[root.selection.unit_type.value], food_cost=getattr(root.selection, 'food_cost', 0)) if root.selection is not None else 'Sacrifice Ant'
+            size_hint: (1, None)
+            height: 24
+        Label:
+            id: time
+            text: 'Time: {time}'.format(time=root.time)
+            size_hint: (1, None)
+            height: 24
+        Label:
+            id: food
+            text: 'Food: {food}'.format(food=root.food)
+            size_hint: (1, None)
+            height: 24
+    ScrollView:
+        id: field_scroll
+        AnchorLayout:
+            size_hint: (None, None)
+            size: (max(field_scroll.width, field.width), max(field_scroll.height, field.height))
+            canvas.before:
+                Color:
+                    rgba: (1, 1, 1, 1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            RelativeLayout:
+                id: field
+                size_hint: (None, None)
+                anchor_x: 'center'
+                anchor_y: 'center'
+                canvas.before:
+                    Color:
+                        rgba: (1, 1, 1, 1)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+
+
+<ImageToggleButton>:
+    canvas.before:
+        Color:
+            rgba: self.disabled_color if self.disabled else self.selected_color if self.state == 'down' else self.unselected_color
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    size_hint: (None, None)
+    size: (SPRITE_WIDTH, SPRITE_HEIGHT)
+
+
+<Sprite>:
+    canvas.before:
+        Color:
+            rgba: self.background_color
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    pos: (SPRITE_WIDTH * self.world_x, SPRITE_HEIGHT * self.world_y)
+    size_hint: (None, None)
+    size: (SPRITE_WIDTH, SPRITE_HEIGHT)
