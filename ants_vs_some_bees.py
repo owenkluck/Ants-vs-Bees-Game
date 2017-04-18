@@ -293,7 +293,9 @@ class Thrower(Ant):
         """
         Recursively identify the nearest Place with a targetable bee.  Only
         bees in the colony and between minimum_range and maximum_range steps,
-        inclusive, of the candidate place are considered targetable.
+        inclusive, of the candidate place are considered targetable.  (Note
+        that all steps are counted equally, regardless of the world_x and
+        world_y of the Places they connect.)
         """
         if isinstance(candidate, ColonyPlace) and len(candidate.bees) > 0:
             return candidate
