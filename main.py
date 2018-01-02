@@ -15,12 +15,6 @@ from kivy.core.window import Window
 
 import ants_vs_some_bees
 
-__app_package__ = 'edu.unl.cse.soft161.ants_vs_some_bees'
-__app__ = 'Ants vs. Some Bees'
-__version__ = '0.1'
-__flags__ = ['--bootstrap=sdl2', '--requirements=python2,kivy',
-             '--orientation=landscape']
-
 
 class ImageToggleButton(ToggleButtonBehavior, Image):
     """
@@ -34,8 +28,11 @@ class ImageToggleButton(ToggleButtonBehavior, Image):
     * selected_color if the button is enabled and selected
     """
 
+    # noinspection PyArgumentList
     disabled_color = ListProperty((0.5, 0.5, 0.5, 1))
+    # noinspection PyArgumentList
     unselected_color = ListProperty((1, 1, 1, 1))
+    # noinspection PyArgumentList
     selected_color = ListProperty((1, 1, 0, 1))
 
 
@@ -80,6 +77,7 @@ class Sprite(OverlayButtonBehavior, Image):
 
     world_x = NumericProperty(0)
     world_y = NumericProperty(0)
+    # noinspection PyArgumentList
     background_color = ListProperty((0, 0, 0, 0))
 
 
@@ -224,6 +222,7 @@ class Game(BoxLayout):
         """
         for archetype in self.game_state.ant_archetypes:
             self._create_ant_button(archetype)
+        # noinspection PyTypeChecker
         self._create_ant_button(None)
 
         max_x = max(place.world_x for place in self.game_state.places) + 1

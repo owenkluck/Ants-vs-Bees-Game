@@ -1,4 +1,6 @@
-.idea
 *.pyc
 *.pyo
-*.apk
+
+.idea
+.buildozer
+bin

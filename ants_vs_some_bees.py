@@ -231,6 +231,7 @@ class Ant(Insect):
         """
         super(Ant, self).__init__(unit_type, health, damage)
 
+    # noinspection PyMethodMayBeStatic
     def blocks(self):
         """
         Determine whether the Ant blocks Bees from advancing.
@@ -289,7 +290,8 @@ class Thrower(Ant):
         """
         super(Thrower, self).__init__(unit_type, food_cost, health, damage)
 
-    def _get_target_place(self, candidate, minimum_range, maximum_range):
+    @staticmethod
+    def _get_target_place(candidate, minimum_range, maximum_range):
         """
         Recursively identify the nearest Place with a targetable bee.  Only
         bees in the colony and between minimum_range and maximum_range steps,
@@ -418,6 +420,7 @@ class GameState(object):
         """
         return [bee for place in self.places for bee in place.bees]
 
+    # noinspection PyMethodMayBeStatic
     def place_ant(self, ant_archetype, place):
         """
         Make a player move to place an Ant based on the given archetype at the
