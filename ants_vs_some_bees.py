@@ -230,6 +230,7 @@ class Ant(Insect):
         Create an Ant with the given type, cost, health, and damage.
         """
         super(Ant, self).__init__(unit_type, health, damage)
+        self.food_cost = food_cost
 
     # noinspection PyMethodMayBeStatic
     def blocks(self):
@@ -258,6 +259,12 @@ class Harvester(Ant):
         super(Harvester, self).__init__(unit_type, food_cost, health)
         self.production = production
 
+    def act(self, game_state):
+        """
+        A Harvest produces food for the colony.
+        """
+        game_state.food += self.production
+
 
 class Thrower(Ant):
     """
@@ -276,6 +283,8 @@ class Thrower(Ant):
         cannot, for instance, target bees still in the hive.
         """
         super(Thrower, self).__init__(unit_type, food_cost, health, damage)
+        self.minimum_range = minimum_range
+        self.maximum_range = maximum_range
 
     @staticmethod
     def _get_target_place(candidate, minimum_range, maximum_range):
@@ -286,9 +295,15 @@ class Thrower(Ant):
         that all steps are counted equally, regardless of the world_x and
         world_y of the Places they connect.)
         """
-        if isinstance(candidate, ColonyPlace) and len(candidate.bees) > 0:
+        if isinstance(candidate, ColonyPlace) and len(candidate.bees) > 0 and \
+                minimum_range <= 0 <= maximum_range:
             return candidate
-        return None  # Stub
+        for source in candidate.sources:
+            target = Thrower._get_target_place(source, minimum_range - 1,
+                                               maximum_range - 1)
+            if target is not None:
+                return target
+        return None
 
     def get_target_place(self):
         """
@@ -334,7 +349,7 @@ class Thrower(Ant):
         >>> thrower.get_target_place()
         ColonyPlace(2, 2)
         """
-        return self._get_target_place(self.place, 0, float('inf'))
+        return self._get_target_place(self.place, self.minimum_range, self.maximum_range)
 
     def _get_target_bee(self):
         """
@@ -415,8 +430,9 @@ class GameState(object):
         Ants can only be placed on empty Places.
         """
         if ant_archetype is None or place.get_defender() is not None or \
-                len(place.bees) > 0:
+                len(place.bees) > 0 or self.food < ant_archetype.food_cost:
             return None
+        self.food -= ant_archetype.food_cost
         ant = deepcopy(ant_archetype)
         place.add_insect(ant)
         return ant
