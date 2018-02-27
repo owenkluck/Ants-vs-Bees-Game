@@ -388,6 +388,6 @@ class TowerApp(App):
             self.end_game()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     app = TowerApp()
     app.run()

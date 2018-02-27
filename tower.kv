@@ -1,9 +1,7 @@
-#:import ants_vs_some_bees ants_vs_some_bees
-
-#:set SPRITE_WIDTH 93
-#:set SPRITE_HEIGHT 98
-#:set UNIT_NAMES {'HARVESTER': 'Harvester Ant', 'SHORT_THROWER': 'Short-Range Leaf Thrower', 'THROWER': 'All-Range Leaf Thrower', 'LONG_THROWER': 'Long-Range Leaf Thrower', 'WALL': 'Wall Ant'}
-
+#:import Game main.Game
+#:import UnitType ants_vs_some_bees.UnitType
+#:set SPRITE_SIZE (Game.SPRITE_WIDTH, Game.SPRITE_HEIGHT)
+#:set UNIT_NAMES {UnitType.HARVESTER: 'Harvester Ant', UnitType.SHORT_THROWER: 'Short-Range Leaf Thrower', UnitType.THROWER: 'All-Range Leaf Thrower', UnitType.LONG_THROWER: 'Long-Range Leaf Thrower', UnitType.WALL: 'Wall Ant'}
 
 ScreenManager:
     Screen:
@@ -132,7 +130,7 @@ ScreenManager:
                             id: harvester_image
                             source: 'assets/ant_harvester.gif'
                             size_hint: (None, 1)
-                            size: (SPRITE_WIDTH, SPRITE_HEIGHT)
+                            size: SPRITE_SIZE
                         Label:
                             text: 'A harvester ant costs 3 food units to deploy, but produces 2 food units per turn.'
                             text_size: (self.width, None)
@@ -149,7 +147,7 @@ ScreenManager:
                             id: short_thrower_image
                             source: 'assets/ant_short_thrower.gif'
                             size_hint: (None, 1)
-                            size: (SPRITE_WIDTH, SPRITE_HEIGHT)
+                            size: SPRITE_SIZE
                         Label:
                             text: 'A short-range leaf thrower costs 3 food units to deploy and can throw leaves at bees it sees up to two spaces away.'
                             text_size: (self.width, None)
@@ -166,7 +164,7 @@ ScreenManager:
                             id: thrower_image
                             source: 'assets/ant_thrower.gif'
                             size_hint: (None, 1)
-                            size: (SPRITE_WIDTH, SPRITE_HEIGHT)
+                            size: SPRITE_SIZE
                         Label:
                             text: 'An all-range thrower costs 7 food units to deploy and can throw leaves at any range.'
                             text_size: (self.width, None)
@@ -183,7 +181,7 @@ ScreenManager:
                             id: long_thrower_image
                             source: 'assets/ant_long_thrower.gif'
                             size_hint: (None, 1)
-                            size: (SPRITE_WIDTH, SPRITE_HEIGHT)
+                            size: SPRITE_SIZE
                         Label:
                             text: 'A long-range thrower costs 3 food units to deploy and can throw leaves at bees it sees from at least four spaces away.'
                             text_size: (self.width, None)
@@ -200,7 +198,7 @@ ScreenManager:
                             id: wall_image
                             source: 'assets/ant_wall.gif'
                             size_hint: (None, 1)
-                            size: (SPRITE_WIDTH, SPRITE_HEIGHT)
+                            size: SPRITE_SIZE
                         Label:
                             text: 'A wall ant costs 4 food units to deploy and has no attack, but it can withstand 4 stings before dying.'
                             text_size: (self.width, None)
@@ -233,7 +231,7 @@ ScreenManager:
                             id: wall_image
                             source: 'assets/bee.gif'
                             size_hint: (None, 1)
-                            size: (SPRITE_WIDTH, SPRITE_HEIGHT)
+                            size: SPRITE_SIZE
                         Label:
                             text: 'A bee can either fly forward or sting each turn.  It normally takes 4 leaves to kill a bee.'
                             text_size: (self.width, None)
@@ -264,7 +262,7 @@ ScreenManager:
                                     size: self.size
                             source: 'assets/tunnel.gif'
                             size_hint: (None, 1)
-                            size: (SPRITE_WIDTH, SPRITE_HEIGHT)
+                            size: SPRITE_SIZE
                         Label:
                             text: 'Every time a bee reaches a red-shaded space in the tunnel, its health increases by one point.'
                             text_size: (self.width, None)
@@ -318,7 +316,7 @@ ScreenManager:
         height: 24
         Label:
             id: selection
-            text: '{unit} ({food_cost} food)'.format(unit=UNIT_NAMES[root.selection.unit_type.value], food_cost=getattr(root.selection, 'food_cost', 0)) if root.selection is not None else 'Sacrifice Ant'
+            text: '{unit} ({food_cost} food)'.format(unit=UNIT_NAMES[root.selection.unit_type], food_cost=getattr(root.selection, 'food_cost', 0)) if root.selection is not None else 'Sacrifice Ant'
             size_hint: (1, None)
             height: 24
         Label:
@@ -363,7 +361,7 @@ ScreenManager:
             pos: self.pos
             size: self.size
     size_hint: (None, None)
-    size: (SPRITE_WIDTH, SPRITE_HEIGHT)
+    size: SPRITE_SIZE
 
 
 <Sprite>:
@@ -373,6 +371,6 @@ ScreenManager:
         Rectangle:
             pos: self.pos
             size: self.size
-    pos: (SPRITE_WIDTH * self.world_x, SPRITE_HEIGHT * self.world_y)
+    pos: (Game.SPRITE_WIDTH * self.world_x, Game.SPRITE_HEIGHT * self.world_y)
     size_hint: (None, None)
-    size: (SPRITE_WIDTH, SPRITE_HEIGHT)
+    size: SPRITE_SIZE

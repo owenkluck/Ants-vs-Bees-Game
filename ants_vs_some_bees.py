@@ -136,7 +136,7 @@ class UnitType(Enum):
     possible for fundamentally different Insects to have the same UnitType.
 
     Any changes to this Enum should be accompanied by corresponding changes to
-    the frontend in main.py.
+    the frontend in main.py and tower.kv.
     """
     BEE = 'BEE'
     HARVESTER = 'HARVESTER'
@@ -257,19 +257,6 @@ class Harvester(Ant):
         """
         super(Harvester, self).__init__(unit_type, food_cost, health)
         self.production = production
-
-
-class Wall(Ant):
-    """
-    A Wall is an Ant with no attack, but lots of health for holding off
-    attacking Bees.
-    """
-
-    def __init__(self, unit_type):
-        """
-        Create a Wall with the given type.
-        """
-        super(Wall, self).__init__(unit_type, 4, 4)
 
 
 class Thrower(Ant):
@@ -400,7 +387,7 @@ class GameState(object):
         Construct a world from the given places, designating one place as the
         Bee's target, offer the player the given archetypes, and provide the
         player with the given amount of starting food.  The places may be (and
-        usually are) prepopulated with insects.
+        usually should be) prepopulated with insects.
         """
         self.ant_archetypes = ant_archetypes
         self.places = places
@@ -473,7 +460,7 @@ STANDARD_ANT_ARCHETYPES = (
     Thrower(UnitType.THROWER, food_cost=7, health=1, damage=1),
     Thrower(UnitType.LONG_THROWER, food_cost=3, health=1, damage=1,
             minimum_range=4),
-    Wall(UnitType.WALL),
+    Ant(UnitType.WALL, food_cost=4, health=4),
 )
 
 
@@ -497,36 +484,50 @@ def make_standard_hive(center_x, center_y, radius, wave_count=4, wave_size=2,
     return hive
 
 
-def make_standard_game(row_count=3, column_count=8, wave_count=4, wave_size=2,
+def make_standard_game(minimum_row_count=2, maximum_row_count=4,
+                       column_count=9, wave_count=4, wave_size=2,
                        wave_growth=1, wave_interval=5, bee_health=4,
                        bee_damage=1, ant_archetypes=STANDARD_ANT_ARCHETYPES,
                        food=4):
     """
     Construct the GameState for the beginning of a standard game, which has the
-    ant queen and the Bee's hive separated by several equal-length rows of
-    ColonyPlaces and Bee's attacking in waves of increasing size.  Most of the
-    specifics of this setup can be varied by specifying non-default arguments.
+    ant queen and the Bee's hive separated by tunnels of ColonyPlaces and Bee's
+    attacking in waves of increasing size.  Most of the specifics of this setup
+    can be varied by specifying non-default arguments.
     """
+    assert minimum_row_count > 0, 'Cannot create a game with no rows'
+    assert maximum_row_count >= minimum_row_count, \
+        'The maximum row count must be at least the minimum row count'
+    assert column_count > 0, 'Cannot create a game with no columns'
 
-    center_y = (row_count + 1) / 2
+    center_y = (maximum_row_count + 1) / 2
     queen_place = Place(1, center_y)
 
-    hive_center_x = column_count + 6
+    multiplier = maximum_row_count - minimum_row_count + 1
+    heights = [int(minimum_row_count + multiplier * column / column_count)
+               for column in range(column_count)]
+
+    hive_center_x = 6 + column_count + heights[-1] - minimum_row_count
     hive = make_standard_hive(hive_center_x, center_y, 2, wave_count,
                               wave_size, wave_growth, wave_interval,
                               bee_health, bee_damage)
 
-    places = [queen_place] + hive
-    for row in range(row_count):
-        destination = queen_place
-        for column in range(column_count):
-            place = Respite(column + 3, row + 1) \
-                if (column + 2 * row) % 5 == 1 else \
-                ColonyPlace(column + 3, row + 1)
-            place.connect_to(destination)
-            destination = place
-            places.append(place)
-        for hive_place in hive:
-            hive_place.connect_to(destination)
-
-    return GameState(places, queen_place, ant_archetypes, food)
+    tunnels = {}
+    for column in range(column_count):
+        height = heights[column]
+        x = 3 + column + height - minimum_row_count
+        for row in range(height):
+            y = center_y + row - (height - 1) / 2
+            place = Respite(x, y) if (column + 2 * row) % 5 == 1 else ColonyPlace(x, y)
+            if column == 0:
+                place.connect_to(queen_place)
+            elif height == heights[column - 1]:
+                place.connect_to(tunnels[column - 1, row])
+            else:
+                for other_row in range(heights[column - 1]):
+                    place.connect_to(tunnels[column - 1, other_row])
+            if column == column_count - 1:
+                for hive_place in hive:
+                    hive_place.connect_to(place)
+            tunnels[column, row] = place
+    return GameState([queen_place] + hive + list(tunnels.values()), queen_place, ant_archetypes, food)
