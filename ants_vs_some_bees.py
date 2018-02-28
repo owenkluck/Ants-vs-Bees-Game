@@ -75,7 +75,7 @@ class ColonyPlace(Place):
         """
         Create a ColonyPlace at the given coordinates.
         """
-        super(ColonyPlace, self).__init__(world_x, world_y)
+        super().__init__(world_x, world_y)
         self.ant = None
 
     def get_defender(self):
@@ -100,7 +100,7 @@ class ColonyPlace(Place):
             self.ant = insect
             insect.place = self
         else:
-            super(ColonyPlace, self).add_insect(insect)
+            super().add_insect(insect)
 
     def remove_insect(self, insect):
         """
@@ -113,7 +113,7 @@ class ColonyPlace(Place):
             self.ant = None
             insect.place = None
         else:
-            super(ColonyPlace, self).remove_insect(insect)
+            super().remove_insect(insect)
 
 
 class Respite(ColonyPlace):
@@ -125,8 +125,16 @@ class Respite(ColonyPlace):
         """
         Create a Respite that boosts Bees' health by the given amount.
         """
-        super(Respite, self).__init__(world_x, world_y)
+        super().__init__(world_x, world_y)
         self.health_boost = health_boost
+
+    def add_insect(self, insect):
+        """
+        Add an Insect to this Place.  If it is a Bee, increase its health.
+        """
+        if isinstance(insect, Bee):
+            insect.health += self.health_boost
+        super().add_insect(insect)
 
 
 class UnitType(Enum):
@@ -192,7 +200,7 @@ class Bee(Insect):
         Create a Bee with the given health and damage and make it wait for
         delay turns before acting.
         """
-        super(Bee, self).__init__(UnitType.BEE, health, damage)
+        super().__init__(UnitType.BEE, health, damage)
         self.delay = delay
 
     @staticmethod
@@ -288,7 +296,7 @@ class Ant(Insect):
         """
         Create an Ant with the given type, cost, health, and damage.
         """
-        super(Ant, self).__init__(unit_type, health, damage)
+        super().__init__(unit_type, health, damage)
         self.food_cost = food_cost
 
     # noinspection PyMethodMayBeStatic
@@ -315,7 +323,7 @@ class Harvester(Ant):
         Create a Harvester with the given type, cost, health and per-turn food
         production.
         """
-        super(Harvester, self).__init__(unit_type, food_cost, health)
+        super().__init__(unit_type, food_cost, health)
         self.production = production
 
     def act(self, game_state):
@@ -341,7 +349,7 @@ class Thrower(Ant):
         etc.  Furthermore, Throwers can only target bees in the colony; they
         cannot, for instance, target bees still in the hive.
         """
-        super(Thrower, self).__init__(unit_type, food_cost, health, damage)
+        super().__init__(unit_type, food_cost, health, damage)
         self.minimum_range = minimum_range
         self.maximum_range = maximum_range
 
