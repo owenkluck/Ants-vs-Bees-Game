@@ -1,7 +1,7 @@
 from __future__ import division
 
-from copy import deepcopy
-from random import choice, uniform
+from copy import copy, deepcopy
+from random import choice, shuffle, uniform
 from enum import Enum
 
 
@@ -195,12 +195,71 @@ class Bee(Insect):
         super(Bee, self).__init__(UnitType.BEE, health, damage)
         self.delay = delay
 
+    @staticmethod
+    def _count_ants_in_tunnel(place):
+        # noinspection PyProtectedMember
+        """
+        Recursively count the number of Ants in place or in any of the Places
+        that follow after it up until the end of the tunnel.
+
+        Given a network of Places:
+        >>> a, b, c, d, e0, e1 = [ColonyPlace(i, i) for i in range(6)]
+        >>> a.connect_to(b)
+        >>> b.connect_to(c)
+        >>> c.connect_to(d)
+        >>> d.connect_to(e0)
+        >>> d.connect_to(e1)
+
+        a "tunnel" is a sequence of connected places up until a branching
+        point.  So in this example the tunnel is (a, b, c, d) because after d
+        the network branches out to e0 and e1.
+
+        _count_ants_in_tunnel will count the number of Ants in the tunnel
+        starting at the Place given.  For an empty tunnel, it will return zero:
+
+        >>> Bee._count_ants_in_tunnel(a)
+        0
+
+        But for an occupied tunnel it will return a positive count:
+
+        >>> a.add_insect(Ant(None, 0))
+        >>> Bee._count_ants_in_tunnel(a)
+        1
+
+        And the count will include Ants anywhere in the tunnel:
+
+        >>> d.add_insect(Ant(None, 0))
+        >>> Bee._count_ants_in_tunnel(a)
+        2
+
+        Note however that Ants before the given Place are not counted, even if
+        the tunnel could have started earlier:
+
+        >>> Bee._count_ants_in_tunnel(b)
+        1
+
+        And that Ants past a branching point are not counted either:
+
+        >>> e0.add_insect(Ant(None, 0))
+        >>> Bee._count_ants_in_tunnel(a)
+        2
+        >>> e1.add_insect(Ant(None, 0))
+        >>> Bee._count_ants_in_tunnel(a)
+        2
+        """
+        return 0  # stub
+
     def fly(self):
         """
-        Move from the Bee's current Place to a destination of that Place.
+        Move from the Bee's current Place to the destination of that Place.  If
+        there are multiple destinations, choose whichever one is the entrance
+        to the least-defended tunnel.  Break any remaining ties by choosing the
+        the first of the tying Places.
         """
         if len(self.place.destinations) > 0:
-            destination = choice(self.place.destinations)
+            destinations = copy(self.place.destinations)
+            shuffle(destinations)
+            destination = min(destinations, key=Bee._count_ants_in_tunnel)
             self.place.remove_insect(self)
             destination.add_insect(self)
 
@@ -422,7 +481,6 @@ class GameState(object):
         """
         return [bee for place in self.places for bee in place.bees]
 
-    # noinspection PyMethodMayBeStatic
     def place_ant(self, ant_archetype, place):
         """
         Make a player move to place an Ant based on the given archetype at the
