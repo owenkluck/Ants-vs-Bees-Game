@@ -224,30 +224,25 @@ class Bee(Insect):
 
         _count_ants_in_tunnel will count the number of Ants in the tunnel
         starting at the Place given.  For an empty tunnel, it will return zero:
-
         >>> Bee._count_ants_in_tunnel(a)
         0
 
         But for an occupied tunnel it will return a positive count:
-
         >>> a.add_insect(Ant(None, 0))
         >>> Bee._count_ants_in_tunnel(a)
         1
 
         And the count will include Ants anywhere in the tunnel:
-
         >>> d.add_insect(Ant(None, 0))
         >>> Bee._count_ants_in_tunnel(a)
         2
 
         Note however that Ants before the given Place are not counted, even if
         the tunnel could have started earlier:
-
         >>> Bee._count_ants_in_tunnel(b)
         1
 
         And that Ants past a branching point are not counted either:
-
         >>> e0.add_insect(Ant(None, 0))
         >>> Bee._count_ants_in_tunnel(a)
         2
