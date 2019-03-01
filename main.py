@@ -225,9 +225,9 @@ class Game(BoxLayout):
 
         for place in self.game_state.places:
             self._create_place_sprite(place)
-        for ant in self.game_state.get_ants():
+        for ant in self.game_state.ants:
             self._create_insect_sprite(ant, ant.place, Game.ANT_Z_INDEX)
-        for bee in self.game_state.get_bees():
+        for bee in self.game_state.bees:
             self._create_insect_sprite(bee, bee.place, Game.BEE_Z_INDEX)
 
         self._refresh_food()
@@ -269,8 +269,8 @@ class Game(BoxLayout):
         for leaf in self.leaf_sprites:
             self._destroy_sprite(leaf)
         self.leaf_sprites = []
-        for ant in self.game_state.get_ants():
-            target = ant.get_target_place()
+        for ant in self.game_state.ants:
+            target = ant.target_place
             if target is not None:
                 sprite_filename = self.LEAF_SPRITE_FILENAMES[ant.unit_type]
                 sprite = self._create_sprite(ant.place.world_x, ant.place.world_y, sprite_filename, Game.LEAF_Z_INDEX)
@@ -322,7 +322,7 @@ class Game(BoxLayout):
                 self._create_insect_sprite(ant, place, Game.ANT_Z_INDEX)
                 self._refresh_food()
         else:
-            self.game_state.sacrifice_ant(place.get_defender())
+            self.game_state.sacrifice_ant(place.defender)
 
 
 class TowerApp(App):

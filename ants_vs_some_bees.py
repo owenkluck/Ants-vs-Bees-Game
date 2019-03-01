@@ -25,7 +25,8 @@ class Place(object):
         self.destinations.append(place)
         place.sources.append(self)
 
-    def get_defender(self):  # pylint: disable=no-self-use
+    @property
+    def defender(self):
         """
         Return the ant defending this place, if any.
         """
@@ -66,7 +67,8 @@ class ColonyPlace(Place):
         super().__init__(world_x, world_y)
         self.ant = None
 
-    def get_defender(self):
+    @property
+    def defender(self):
         """
         Return the ant defending this place, if any.
         """
@@ -219,7 +221,7 @@ class Bee(Insect):
         if self.delay > 0:
             self.delay -= 1
         else:
-            defender = self.place.get_defender()
+            defender = self.place.defender
             if defender is not None and defender.blocks():
                 defender.reduce_health(self.damage)
             else:
@@ -245,7 +247,8 @@ class Ant(Insect):
         """
         return True
 
-    def get_target_place(self):  # pylint: disable=no-self-use
+    @property
+    def target_place(self):
         """
         Return the Place that the Ant's throws are targeting, if any.
         """
@@ -290,7 +293,8 @@ class Thrower(Ant):
         self.minimum_range = minimum_range
         self.maximum_range = maximum_range
 
-    def get_target_place(self):
+    @property
+    def target_place(self):
         """
         Identify the nearest Place with a targetable bee.  Only bees in the colony and between minimum_range and
         maximum_range steps, inclusive, of the candidate place are considered targetable.  (Note that all steps are
@@ -310,11 +314,12 @@ class Thrower(Ant):
                     worklist.extend((source, distance + 1) for source in candidate.sources)
         return None
 
-    def _get_target_bee(self):
+    @property
+    def _target_bee(self):
         """
         Choose a random Bee in the place that the Ant's throws are targeting, if any.
         """
-        target = self.get_target_place()
+        target = self.target_place
         return choice(target.bees) if target is not None else None
 
     def _hit_bee(self, target_bee):
@@ -342,7 +347,7 @@ class Thrower(Ant):
         And when all of its ammo is consumed, kill the ant:
         >>> # Placeholder
         """
-        target_bee = self._get_target_bee()
+        target_bee = self._target_bee
         if target_bee is not None:
             self._hit_bee(target_bee)
             self.ammo -= 1
@@ -380,13 +385,15 @@ class GameState(object):
         self.queen_place = queen_place
         self.food = food
 
-    def get_ants(self):
+    @property
+    def ants(self):
         """
         Collect a list of all of the Ants deployed in the world.
         """
-        return [place.get_defender() for place in self.places if place.get_defender() is not None]
+        return [place.defender for place in self.places if place.defender is not None]
 
-    def get_bees(self):
+    @property
+    def bees(self):
         """
         Collect a list of all of the Bees deployed in the world.
         """
@@ -397,7 +404,7 @@ class GameState(object):
         Make a player move to place an Ant based on the given archetype at the given Place.  Return that Ant, or None if
         the Ant could not be placed.  Ants can only be placed on empty Places.
         """
-        if ant_archetype is None or place.get_defender() is not None or len(place.bees) > 0 or\
+        if ant_archetype is None or place.defender is not None or len(place.bees) > 0 or\
                 self.food < ant_archetype.food_cost:
             return None
         self.food -= ant_archetype.food_cost
@@ -411,7 +418,7 @@ class GameState(object):
         """
         if ant is not None:
             assert ant.place is not None, f'Cannot sacrifice {ant}, which is already dead'
-            assert any(place.get_defender() is ant for place in self.places),\
+            assert any(place.defender is ant for place in self.places),\
                 f'Cannot sacrifice {ant}, which belongs to a different game'
             ant.reduce_health(ant.health)
 
@@ -424,11 +431,11 @@ class GameState(object):
         """
         if len(self.queen_place.bees) > 0:
             return GameOutcome.LOSS
-        if len(self.get_bees()) == 0:
+        if len(self.bees) == 0:
             return GameOutcome.WIN
-        for ant in self.get_ants():
+        for ant in self.ants:
             ant.act(self)
-        for bee in self.get_bees():
+        for bee in self.bees:
             bee.act(self)
         return GameOutcome.UNRESOLVED
 
