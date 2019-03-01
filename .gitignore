@@ -2,5 +2,4 @@
 *.pyo
 
 .idea
-.buildozer
 bin
