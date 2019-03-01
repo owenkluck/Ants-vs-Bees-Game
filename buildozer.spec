@@ -36,7 +36,7 @@ version = 1.0
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = kivy
+requirements = python3,kivy
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
@@ -88,16 +88,16 @@ fullscreen = 0
 #android.permissions = INTERNET
 
 # (int) Android API to use
-#android.api = 19
+android.api = 21
 
 # (int) Minimum API required
-#android.minapi = 9
+android.minapi = 21
 
 # (int) Android SDK version to use
 #android.sdk = 20
 
 # (str) Android NDK version to use
-#android.ndk = 9c
+android.ndk = 17c
 
 # (bool) Use --private data storage (True) or --dir public storage (False)
 #android.private_storage = True
@@ -146,8 +146,11 @@ fullscreen = 0
 # bootstrap)
 #android.gradle_dependencies =
 
+# (list) Java classes to add as activities to the manifest.
+#android.add_activites = com.example.ExampleActivity
+
 # (str) python-for-android branch to use, defaults to stable
-#p4a.branch = stable
+p4a.branch = master
 
 # (str) OUYA Console category. Should be one of GAME or APP
 # If you leave this blank, OUYA support will not be enabled
@@ -158,6 +161,9 @@ fullscreen = 0
 
 # (str) XML file to include as an intent filters in <activity> tag
 #android.manifest.intent_filters =
+
+# (str) launchMode to set for the main activity
+#android.manifest.launch_mode = standard
 
 # (list) Android additional libraries to copy into libs/armeabi
 #android.add_libs_armeabi = libs/android/*.so
@@ -201,6 +207,9 @@ android.arch = armeabi-v7a
 # (str) Bootstrap to use for android builds
 # p4a.bootstrap = sdl2
 
+# (int) port number to specify an explicit --port= p4a argument (eg for bootstrap flask)
+#p4a.port =
+
 
 #
 # iOS specific
@@ -220,7 +229,7 @@ android.arch = armeabi-v7a
 [buildozer]
 
 # (int) Log level (0 = error only, 1 = info, 2 = debug (with command output))
-log_level = 2
+log_level = 1
 
 # (int) Display warning if buildozer is run as root (0 = False, 1 = True)
 warn_on_root = 1
