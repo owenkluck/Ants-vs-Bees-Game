@@ -338,7 +338,9 @@ class TowerApp(App):
         """
         self.root.transition.direction = 'down'
         self.root.current = 'game'
-        game = Game(ants_vs_some_bees.make_standard_game())
+        standard_game = ants_vs_some_bees.make_standard_game()
+        standard_game.diagnostics = True
+        game = Game(standard_game)
         game.bind(outcome=self.on_outcome)
         self.root.ids.game_screen.add_widget(game)
 

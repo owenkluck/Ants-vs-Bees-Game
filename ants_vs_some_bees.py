@@ -254,6 +254,13 @@ class Ant(Insect):
         """
         return None
 
+    @property
+    def in_range_bees(self):
+        """
+        Identify all bees in the colony that are within range of the Ant's throws, if any.
+        """
+        return set()
+
 
 class Harvester(Ant):
     """
@@ -292,6 +299,74 @@ class Thrower(Ant):
         self.ammo = ammo
         self.minimum_range = minimum_range
         self.maximum_range = maximum_range
+
+    def _in_range_bee_finder(self, root_place, root_distance, visited_places, found_bees):
+        """
+        :param root_place:     The root of the search tree
+        :param root_distance:  The distance of root_place from self.place
+        :param visited_places: Set of places already checked for in-range bees (regardless of whether it holds a bee)
+        :param found_bees:     Set of in-range bees already found
+        :return:               An updated set of visited places, and an updated set of found bees
+        """
+        return set(), set()
+
+    @property
+    def in_range_bees(self):
+        """
+        Identify all bees in the colony that are within range of the Ant's throws, if any.
+        If a bee is in-range, it is included:
+        >>> places = [ColonyPlace(0,0), ColonyPlace(1,0), ColonyPlace(0,1), ColonyPlace(1,1)]
+        >>> ant = Thrower(unit_type=None, food_cost=0, health=1, damage=1, ammo=2, minimum_range=1, maximum_range=2)
+        >>> bees = [Bee(1,1,1), Bee(1,1,1), Bee(1,1,1)]
+        >>> places[-1].add_insect(ant)
+        >>> for i in range(len(bees)):
+        ...     places[i].add_insect(bees[i])
+        >>> places[2].connect_to(places[1])
+        >>> places[1].connect_to(places[-1])
+        >>> places[0].connect_to(places[-1])
+        >>> ant.in_range_bees == {bees[0], bees[1], bees[2]}
+        True
+
+        But if a bee is beyond the maximum range, it is excluded:
+        >>> places = [ColonyPlace(0,0), ColonyPlace(1,0), ColonyPlace(0,1), ColonyPlace(1,1)]
+        >>> ant = Thrower(unit_type=None, food_cost=0, health=1, damage=1, ammo=2, minimum_range=1, maximum_range=1)
+        >>> bees = [Bee(1,1,1), Bee(1,1,1), Bee(1,1,1)]
+        >>> places[-1].add_insect(ant)
+        >>> for i in range(len(bees)):
+        ...     places[i].add_insect(bees[i])
+        >>> places[2].connect_to(places[1])
+        >>> places[1].connect_to(places[-1])
+        >>> places[0].connect_to(places[-1])
+        >>> set(bees) - ant.in_range_bees == {bees[2]}
+        True
+
+        Similarly, if a bee is closer than the minimum range, it is excluded:
+        >>> places = [ColonyPlace(0,0), ColonyPlace(1,0), ColonyPlace(0,1), ColonyPlace(1,1)]
+        >>> ant = Thrower(unit_type=None, food_cost=0, health=1, damage=1, ammo=2, minimum_range=2, maximum_range=2)
+        >>> bees = [Bee(1,1,1), Bee(1,1,1), Bee(1,1,1)]
+        >>> places[-1].add_insect(ant)
+        >>> for i in range(len(bees)):
+        ...     places[i].add_insect(bees[i])
+        >>> places[2].connect_to(places[1])
+        >>> places[1].connect_to(places[-1])
+        >>> places[0].connect_to(places[-1])
+        >>> set(bees) - ant.in_range_bees == {bees[0], bees[1]}
+        True
+
+        An ant that is not in the colony has no in-range bees:
+        >>> ant = Thrower(unit_type=None, food_cost=0, health=1, damage=1, ammo=2, minimum_range=1, maximum_range=2)
+        >>> bees = [Bee(1,1,1), Bee(1,1,1), Bee(1,1,1)]
+        >>> places = [ColonyPlace(0,0), ColonyPlace(1,0), ColonyPlace(0,1), ColonyPlace(1,1)]
+        >>> for i in range(len(bees)):
+        ...     places[i].add_insect(bees[i])
+        >>> places[2].connect_to(places[1])
+        >>> places[1].connect_to(places[-1])
+        >>> places[0].connect_to(places[-1])
+        >>> ant.in_range_bees
+        set()
+        """
+        _, bees = self._in_range_bee_finder(self.place, 0, set(), set())
+        return bees
 
     @property
     def target_place(self):
@@ -384,6 +459,8 @@ class GameState(object):
         self.places = places
         self.queen_place = queen_place
         self.food = food
+        self.turn_number = 0
+        self.diagnostics = False
 
     @property
     def ants(self):
@@ -422,6 +499,17 @@ class GameState(object):
                 f'Cannot sacrifice {ant}, which belongs to a different game'
             ant.reduce_health(ant.health)
 
+    def show_game_status(self):
+        """
+        Displays the turn number, the number of ants and bees, and the number of bees in range of at least one ant.
+        """
+        vulnerable_bees = set()
+        for ant in self.ants:
+            vulnerable_bees = vulnerable_bees.union(ant.in_range_bees)
+        if self.turn_number == 1:
+            print(f'  Turn    Number of ants    Number of bees    Number of targetable bees')
+        print(f'{self.turn_number:>6}    {len(self.ants):>14}    {len(self.bees):>14}    {len(vulnerable_bees):>25}')
+
     def take_turn(self):
         """
         If possible, cause one turn of game time to pass.  During a turn, Ants act, and then any surviving Bees act.
@@ -429,10 +517,15 @@ class GameState(object):
         Return the GameOutcome, GameOutcome.UNRESOLVED if time passed, but GameOutcome.LOSS or GameOutcome.WIN if time
         could not pass because the game is over.
         """
+        self.turn_number += 1
         if len(self.queen_place.bees) > 0:
+            print(f'Game lost after {self.turn_number} turns. Try again.')
             return GameOutcome.LOSS
         if len(self.bees) == 0:
+            print(f'Game won after {self.turn_number} turns. Congratulations!')
             return GameOutcome.WIN
+        if self.diagnostics:
+            self.show_game_status()
         for ant in self.ants:
             ant.act(self)
         for bee in self.bees:
