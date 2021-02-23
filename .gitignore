@@ -1,5 +1,28 @@
+# Mac file finder metadata
+.DS_Store
+# Windows file metadata
+._*
+# Thumbnail image caches
+Thumbs.db
+ethumbs.db
+# MS Office temporary file
+~*
+# Emacs backup file
+*~
+
+# Common
+bin
+
+# Python files
 *.pyc
 *.pyo
+__pycache__/
 
-.idea
-bin
+# JetBrains (IntelliJ IDEA, PyCharm, etc) files
+.idea/
+cmake-build-*/
+*.iml
+*.iws
+*.ipr
+venv/
+
