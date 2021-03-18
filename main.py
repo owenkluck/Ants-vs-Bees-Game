@@ -107,17 +107,17 @@ class Game(BoxLayout):
     BEE_Z_INDEX = 2
     LEAF_Z_INDEX = 3
 
-    REMOVER_SPRITE_FILENAME = 'assets/remover.gif'
+    REMOVER_SPRITE_FILENAME = 'assets/remover.png'
     UNIT_SPRITE_FILENAMES = {
-        ants_vs_some_bees.UnitType.BEE: 'assets/bee.gif',
-        ants_vs_some_bees.UnitType.HARVESTER: 'assets/ant_harvester.gif',
-        ants_vs_some_bees.UnitType.THROWER: 'assets/ant_medium.gif',
+        ants_vs_some_bees.UnitType.BEE: 'assets/bee.png',
+        ants_vs_some_bees.UnitType.HARVESTER: 'assets/ant_harvester.png',
+        ants_vs_some_bees.UnitType.THROWER: 'assets/ant_medium.png',
     }
     LEAF_SPRITE_FILENAMES = {
-        ants_vs_some_bees.UnitType.THROWER: 'assets/leaf_green.gif',
+        ants_vs_some_bees.UnitType.THROWER: 'assets/leaf_green.png',
     }
-    QUEEN_SPRITE_FILENAME = 'assets/ant_queen.gif'
-    PLACE_SPRITE_FILENAME = 'assets/place.gif'
+    QUEEN_SPRITE_FILENAME = 'assets/ant_queen.png'
+    PLACE_SPRITE_FILENAME = 'assets/place.png'
 
     TURN_LENGTH = 3  # seconds per turn
     FRAME_RATE = 30  # frames per second
