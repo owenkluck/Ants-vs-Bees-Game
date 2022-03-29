@@ -408,7 +408,24 @@ class Thrower(Ant):
         """
         If there is a Bee approaching this Ant, and it is in-range, consume one unit of ammo to throw a leaf at that bee
         and reduce its health:
-        >>> # Placeholder
+        >>> place = ColonyPlace(1, 0)
+        >>> next_place = ColonyPlace(0, 0)
+        >>> thrower_place = ColonyPlace(1, 1)
+        >>> place.connect_to(next_place)
+        >>> state = GameState(places=[place, next_place, thrower_place], queen_place=None, ant_archetypes=[], food=0)
+        >>> thrower = Thrower(unit_type=UnitType.THROWER, food_cost=0, health=2, damage=1, ammo=2, minimum_range=1, maximum_range=3)
+        >>> thrower_place.add_insect(thrower)
+        >>> bee = Bee(health=1, damage=1, delay=0)
+        >>> place.add_insect(bee)
+        >>> thrower.act(state)
+        >>> bee.act(state)
+        >>> thrower.target_place
+        >>> bee.health
+        0
+        >>> thrower.ammo
+        1
+        >>> bee.place
+        ColonyPlace(0, 0)
 
         But ignore any Bee that is out of range:
         >>> # Placeholder
