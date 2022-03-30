@@ -308,7 +308,16 @@ class Thrower(Ant):
         :param found_bees:     Set of in-range bees already found
         :return:               An updated set of visited places, and an updated set of found bees
         """
-        return set(), set()
+        if root_place not in visited_places and root_place is not None:
+            visited_places.add(root_place)
+            if self.minimum_range <= root_distance <= self.maximum_range:
+                found_bees = found_bees.union(root_place.bees)
+            sources = root_place.sources
+            for source in sources:
+                more_visited_places, more_found_bees = self._in_range_bee_finder(source, root_distance+1, visited_places, found_bees)
+                visited_places = visited_places.union(more_visited_places)
+                found_bees = found_bees.union(more_found_bees)
+        return visited_places, found_bees
 
     @property
     def in_range_bees(self):
