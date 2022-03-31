@@ -113,6 +113,7 @@ class UnitType(Enum):
     BEE = 'BEE'
     HARVESTER = 'HARVESTER'
     THROWER = 'THROWER'
+    SUPER_HARVESTER = 'SUPER_HARVESTER'
 
 
 class Insect(object):
@@ -308,7 +309,16 @@ class Thrower(Ant):
         :param found_bees:     Set of in-range bees already found
         :return:               An updated set of visited places, and an updated set of found bees
         """
-        return set(), set()
+        if root_place not in visited_places and root_place is not None:
+            visited_places.add(root_place)
+            if self.minimum_range <= root_distance <= self.maximum_range:
+                found_bees = found_bees.union(root_place.bees)
+            sources = root_place.sources
+            for source in sources:
+                more_visited_places, more_found_bees = self._in_range_bee_finder(source, root_distance+1, visited_places, found_bees)
+                visited_places = visited_places.union(more_visited_places)
+                found_bees = found_bees.union(more_found_bees)
+        return visited_places, found_bees
 
     @property
     def in_range_bees(self):
@@ -487,6 +497,48 @@ class Thrower(Ant):
                 self.reduce_health(self.health)
 
 
+class SuperHarvester(Harvester):
+    """
+    A SuperHarvester produces a certain amount of food for the colony but will die if it does not have an adjacent Thrower
+    """
+    def act(self, game_state):
+        """
+        If there is not an adjacent Thrower to the SuperHarvester, it will die:
+        >>> super_harvester_place = ColonyPlace(0, 0)
+        >>> state = GameState(places=[super_harvester_place], queen_place=None, ant_archetypes=[], food=0)
+        >>> super_harvester = SuperHarvester(unit_type=UnitType.SUPER_HARVESTER, food_cost=0, health=2, production=2)
+        >>> super_harvester_place.add_insect(super_harvester)
+        >>> super_harvester.act(state)
+        >>> super_harvester_place.defender
+        >>> state.food
+        0
+
+        and when there is not, it will produce food for the colony
+        >>> super_harvester_place = ColonyPlace(0, 0)
+        >>> thrower_place = ColonyPlace(1,0)
+        >>> thrower_place.connect_to(super_harvester_place)
+        >>> state = GameState(places=[super_harvester_place, thrower_place], queen_place=None, ant_archetypes=[], food=0)
+        >>> super_harvester = SuperHarvester(unit_type=UnitType.SUPER_HARVESTER, food_cost=0, health=2, production=2)
+        >>> super_harvester_place.add_insect(super_harvester)
+        >>> thrower = Thrower(unit_type=UnitType.THROWER, food_cost=0, health=2, damage=1, ammo=2, minimum_range=1, maximum_range=3)
+        >>> thrower_place.add_insect(thrower)
+        >>> thrower.act(state)
+        >>> super_harvester.act(state)
+        >>> super_harvester_place.defender == super_harvester
+        True
+        >>> state.food
+        2
+        """
+        going_to_die = True
+        for place in self.place.sources:
+            if isinstance(place.defender, Thrower):
+                going_to_die = False
+        if going_to_die:
+            self.place.remove_insect(self)
+        else:
+            super().act(game_state)
+
+
 class GameOutcome(Enum):
     """
     A GameOutcome represents whether a game should continue or not and, if not,
@@ -593,6 +645,7 @@ class GameState(object):
 STANDARD_ANT_ARCHETYPES = (
     Harvester(UnitType.HARVESTER, food_cost=3, health=1, production=1),
     Thrower(UnitType.THROWER, food_cost=7, health=1, damage=1, ammo=4, minimum_range=0, maximum_range=2),
+    SuperHarvester(UnitType.SUPER_HARVESTER, food_cost=5, health=1, production=2)
 )
 
 
