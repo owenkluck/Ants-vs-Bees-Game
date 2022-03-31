@@ -112,6 +112,7 @@ class Game(BoxLayout):
         ants_vs_some_bees.UnitType.BEE: 'assets/bee.png',
         ants_vs_some_bees.UnitType.HARVESTER: 'assets/ant_harvester.png',
         ants_vs_some_bees.UnitType.THROWER: 'assets/ant_medium.png',
+        ants_vs_some_bees.UnitType.SUPER_HARVESTER: 'assets/ant_fire.png',
     }
     LEAF_SPRITE_FILENAMES = {
         ants_vs_some_bees.UnitType.THROWER: 'assets/leaf_green.png',
