@@ -113,9 +113,11 @@ class Game(BoxLayout):
         ants_vs_some_bees.UnitType.HARVESTER: 'assets/ant_harvester.png',
         ants_vs_some_bees.UnitType.THROWER: 'assets/ant_medium.png',
         ants_vs_some_bees.UnitType.SUPER_HARVESTER: 'assets/ant_fire.png',
+        ants_vs_some_bees.UnitType.MEGA_THROWER: 'assets/ant_large.png',
     }
     LEAF_SPRITE_FILENAMES = {
         ants_vs_some_bees.UnitType.THROWER: 'assets/leaf_green.png',
+        ants_vs_some_bees.UnitType.MEGA_THROWER: 'assets/leaf_dark_green.png'
     }
     QUEEN_SPRITE_FILENAME = 'assets/ant_queen.png'
     PLACE_SPRITE_FILENAME = 'assets/place.png'

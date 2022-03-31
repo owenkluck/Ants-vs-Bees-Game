@@ -114,6 +114,7 @@ class UnitType(Enum):
     HARVESTER = 'HARVESTER'
     THROWER = 'THROWER'
     SUPER_HARVESTER = 'SUPER_HARVESTER'
+    MEGA_THROWER = 'MEGA_THROWER'
 
 
 class Insect(object):
@@ -453,6 +454,16 @@ class Thrower(Ant):
                 self.reduce_health(self.health)
 
 
+class MegaThrower(Thrower):
+    def act(self, game_state):
+        surrounding_ants_count = 0
+        for place in self.place.sources:
+            if isinstance(place.defender, Ant):
+                surrounding_ants_count += 1
+        self.damage = surrounding_ants_count
+        super().act(game_state)
+
+
 class SuperHarvester(Harvester):
     """
     A SuperHarvester produces a certain amount of food for the colony but will die if it does not have an adjacent Thrower
@@ -601,7 +612,8 @@ class GameState(object):
 STANDARD_ANT_ARCHETYPES = (
     Harvester(UnitType.HARVESTER, food_cost=3, health=1, production=1),
     Thrower(UnitType.THROWER, food_cost=7, health=1, damage=1, ammo=4, minimum_range=0, maximum_range=2),
-    SuperHarvester(UnitType.SUPER_HARVESTER, food_cost=5, health=1, production=2)
+    SuperHarvester(UnitType.SUPER_HARVESTER, food_cost=5, health=1, production=2),
+    MegaThrower(UnitType.MEGA_THROWER, food_cost=9, health=2, damage=0, ammo=5, minimum_range=0, maximum_range=2),
 )
 
 

@@ -1,7 +1,7 @@
 #:import Game main.Game
 #:import UnitType ants_vs_some_bees.UnitType
 #:set SPRITE_SIZE (Game.SPRITE_WIDTH, Game.SPRITE_HEIGHT)
-#:set UNIT_NAMES {UnitType.HARVESTER: 'Harvester Ant', UnitType.THROWER: 'Leaf Thrower', UnitType.SUPER_HARVESTER: 'Super Harvester Ant'}
+#:set UNIT_NAMES {UnitType.HARVESTER: 'Harvester Ant', UnitType.THROWER: 'Leaf Thrower', UnitType.SUPER_HARVESTER: 'Super Harvester Ant', UnitType.MEGA_THROWER: 'Mega-Thrower'}
 
 ScreenManager:
     Screen:
@@ -101,6 +101,9 @@ ScreenManager:
                     CaptionedSprite:
                         source: 'assets/ant_fire.png'
                         text: 'A super harvester ant costs 5 food units to deploy, but produces 2 units of food per turn as long as there is an adjacent leaf thrower ant. If there is not, it will die.'
+                    CaptionedSprite:
+                        source: 'assets/ant_large.png'
+                        text: 'A mega-thrower ant costs 9 food units to deploy and dies after throwing five leaves. It will only throw leaves outward, away from the queen and will do the amount of damage as there are adjacent ants.'
                     Paragraph:
                         text: 'To sacrifice an ant, which can be useful if you need space for new deployments, select the sacrifice tool and tap on the ant you want to sacrifice.'
                     Paragraph:
