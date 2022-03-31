@@ -435,16 +435,80 @@ class Thrower(Ant):
         1
 
         But ignore any Bee that is out of range:
-        >>> # Placeholder
+        >>> place = ColonyPlace(11, 11)
+        >>> thrower_place = ColonyPlace(0, 0)
+        >>> state = GameState(places=[place, thrower_place], queen_place=None, ant_archetypes=[], food=0)
+        >>> thrower = Thrower(unit_type=UnitType.THROWER, food_cost=0, health=2, damage=1, ammo=2, minimum_range=1, maximum_range=3)
+        >>> thrower_place.add_insect(thrower)
+        >>> bee = Bee(health=1, damage=1, delay=0)
+        >>> place.add_insect(bee)
+        >>> thrower.act(state)
+        >>> thrower.target_place
+        >>> in_range = thrower.in_range_bees
+        >>> Thrower._in_range_bee_finder == bee
+        False
+        >>> bee.health
+        1
+        >>> thrower.ammo
+        2
+
 
         or that has already flown past this Ant:
-        >>> # Placeholder
+        >>> place = [ColonyPlace(0, 1), ColonyPlace(1,1), ColonyPlace(2,1)]
+        >>> state = GameState(places=[place], queen_place=None, ant_archetypes=[], food=0)
+        >>> thrower = Thrower(unit_type=UnitType.THROWER, food_cost=0, health=2, damage=1, ammo=2, minimum_range=1, maximum_range=2)
+        >>> bee = Bee(health=1, damage=1, delay=0)
+        >>> place[0].add_insect(bee)
+        >>> place[1].add_insect(thrower)
+        >>> place[0].connect_to(place[2])
+        >>> bee.act(state)
+        >>> bee.place
+        ColonyPlace(2, 1)
+        >>> bee.health
+        1
+        >>> thrower.ammo
+        2
 
         If there are multiple in-range bees approaching, target the one that is nearest:
-        >>> # Placeholder
+        >>> bee1_place = ColonyPlace(1,0)
+        >>> bee2_place = ColonyPlace(2,0)
+        >>> thrower_place = ColonyPlace(0, 0)
+        >>> state = GameState(places=[bee1_place, bee2_place, thrower_place], queen_place=None, ant_archetypes=[], food=0)
+        >>> thrower = Thrower(unit_type=UnitType.THROWER, food_cost=0, health=2, damage=1, ammo=2, minimum_range=1, maximum_range=2)
+        >>> bee1 = Bee(health=1, damage=1, delay=0)
+        >>> bee2 = Bee(health=1, damage=1, delay=0)
+        >>> bee1_place.add_insect(bee1)
+        >>> bee2_place.add_insect(bee2)
+        >>> thrower_place.add_insect(thrower)
+        >>> bee1_place.connect_to(thrower_place)
+        >>> thrower.act(state)
+        >>> bee1.health
+        0
+        >>> thrower.ammo
+        1
+
 
         And when all of its ammo is consumed, kill the ant:
-        >>> # Placeholder
+        >>> bee1_place = ColonyPlace(1,0)
+        >>> bee2_place = ColonyPlace(2,0)
+        >>> thrower_place = ColonyPlace(0, 0)
+        >>> state = GameState(places=[bee1_place, bee2_place, thrower_place], queen_place=None, ant_archetypes=[], food=0)
+        >>> thrower = Thrower(unit_type=UnitType.THROWER, food_cost=0, health=1, damage=1, ammo=1, minimum_range=1, maximum_range=2)
+        >>> bee1 = Bee(health=3, damage=1, delay=0)
+        >>> bee2 = Bee(health=3, damage=1, delay=0)
+        >>> bee1_place.add_insect(bee1)
+        >>> bee2_place.add_insect(bee2)
+        >>> thrower_place.add_insect(thrower)
+        >>> bee1_place.connect_to(thrower_place)
+        >>> thrower.act(state)
+        >>> thrower_place.connect_to(bee1_place)
+        >>> bee1.act(state)
+        >>> bee1.health
+        2
+        >>> thrower.ammo
+        0
+        >>> thrower.health
+        0
         """
         target_bee = self._target_bee
         if target_bee is not None:
