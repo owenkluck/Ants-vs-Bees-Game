@@ -298,12 +298,10 @@ class Thrower(Ant):
         Furthermore, Throwers can only target bees in the colony; they cannot, for instance, target bees still in the
         hive.
         """
-        print(ammo)
         super().__init__(unit_type, food_cost, health, damage)
         self.ammo = ammo
         self.minimum_range = minimum_range
         self.maximum_range = maximum_range
-        print(self.ammo)
 
     def _in_range_bee_finder(self, root_place, root_distance, visited_places, found_bees):
         """
@@ -519,8 +517,6 @@ class Thrower(Ant):
             self.ammo -= 1
             if self.ammo <= 0:
                 self.reduce_health(self.health)
-        print('at checkpoint 1:')
-        print(self.ammo)
 
 
 class SuperThrower(Thrower):
