@@ -565,7 +565,7 @@ class SuperHarvester(Harvester):
             if isinstance(place.defender, Thrower):
                 going_to_die = False
         if going_to_die:
-            self.place.remove_insect(self)
+            self.reduce_health(self.health)
         else:
             super().act(game_state)
 
