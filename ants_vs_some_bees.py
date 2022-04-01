@@ -115,6 +115,7 @@ class UnitType(Enum):
     THROWER = 'THROWER'
     SUPER_HARVESTER = 'SUPER_HARVESTER'
     MEGA_THROWER = 'MEGA_THROWER'
+    SUPER_THROWER = 'SUPER_THROWER'
 
 
 class Insect(object):
@@ -297,10 +298,12 @@ class Thrower(Ant):
         Furthermore, Throwers can only target bees in the colony; they cannot, for instance, target bees still in the
         hive.
         """
+        print(ammo)
         super().__init__(unit_type, food_cost, health, damage)
         self.ammo = ammo
         self.minimum_range = minimum_range
         self.maximum_range = maximum_range
+        print(self.ammo)
 
     def _in_range_bee_finder(self, root_place, root_distance, visited_places, found_bees):
         """
@@ -516,6 +519,16 @@ class Thrower(Ant):
             self.ammo -= 1
             if self.ammo <= 0:
                 self.reduce_health(self.health)
+        print('at checkpoint 1:')
+        print(self.ammo)
+
+
+class SuperThrower(Thrower):
+    def act(self, game_state):
+        if self.health == 1:
+            self.ammo += 1
+        super().act(game_state)
+        print(self.ammo)
 
 
 class MegaThrower(Thrower):
@@ -678,6 +691,7 @@ STANDARD_ANT_ARCHETYPES = (
     Thrower(UnitType.THROWER, food_cost=7, health=1, damage=1, ammo=4, minimum_range=0, maximum_range=2),
     SuperHarvester(UnitType.SUPER_HARVESTER, food_cost=5, health=1, production=2),
     MegaThrower(UnitType.MEGA_THROWER, food_cost=9, health=2, damage=0, ammo=5, minimum_range=0, maximum_range=2),
+    SuperThrower(UnitType.SUPER_THROWER, food_cost=8, health=2, damage=1, ammo=4, minimum_range=0, maximum_range=2)
 )
 
 
